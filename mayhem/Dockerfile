@@ -15,13 +15,14 @@
 ################################################################################
 
 FROM gcr.io/oss-fuzz-base/base-builder
+ENV GIT_TERMINAL_PROMPT=0
 MAINTAINER guidovranken@gmail.com
 RUN apt-get -o Acquire::Retries=5 update && apt-get -o Acquire::Retries=5 install -y make autoconf automake libtool pkg-config
-RUN git clone --depth 1 --recursive https://github.com/protocolbuffers/protobuf.git
+RUN for i in 1 2 3; do git clone --depth 1 --recursive https://github.com/protocolbuffers/protobuf.git && break || sleep 5; done
 COPY . next
 RUN rm -rf next/mayhem
-RUN git clone --depth 1 https://github.com/guidovranken/fuzzing-headers.git
-RUN git clone --depth 1 https://github.com/guidovranken/protobuf-c-fuzzers.git
+RUN for i in 1 2 3; do git clone --depth 1 https://github.com/guidovranken/fuzzing-headers.git && break || sleep 5; done
+RUN for i in 1 2 3; do git clone --depth 1 https://github.com/guidovranken/protobuf-c-fuzzers.git && break || sleep 5; done
 COPY mayhem/build.sh $SRC/
 
 ENV FUZZING_LANGUAGE=c SANITIZER=address
