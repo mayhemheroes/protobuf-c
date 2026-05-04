@@ -32,18 +32,31 @@ then
     export CXXFLAGS="$CXXFLAGS -fno-use-cxa-atexit"
 fi
 
-mkdir $SRC/protobuf-install/
-cd $SRC/protobuf/
-./autogen.sh
-./configure --prefix=$SRC/protobuf-install
+# Build protobuf using CMake (autotools no longer available in modern protobuf)
+SAVED_CFLAGS="$CFLAGS"
+SAVED_CXXFLAGS="$CXXFLAGS"
+unset CFLAGS CXXFLAGS
+mkdir -p $SRC/protobuf-build
+cd $SRC/protobuf-build
+cmake $SRC/protobuf \
+    -Dprotobuf_BUILD_TESTS=OFF \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=$SRC/protobuf-install \
+    -DBUILD_SHARED_LIBS=OFF
 make -j$(nproc)
 make install
+export CFLAGS="$SAVED_CFLAGS"
+export CXXFLAGS="$SAVED_CXXFLAGS"
 
 export PROTOC="$SRC/protobuf-install/bin/protoc"
 
+# Build protobuf-c using autotools
+# Point it to the protobuf cmake install using explicit flags
 cd $SRC/protobuf-c/
 ./autogen.sh
-./configure --enable-static=yes --enable-shared=false PKG_CONFIG_PATH=$SRC/protobuf-install/lib/pkgconfig
+PROTOBUF_CFLAGS="-I$SRC/protobuf-install/include" \
+PROTOBUF_LIBS="-L$SRC/protobuf-install/lib -lprotobuf" \
+./configure --enable-static=yes --enable-shared=false
 
 make -j$(nproc)
 make install
@@ -55,5 +68,5 @@ cd $SRC/protobuf-c-fuzzers/
 cp $SRC/protobuf-c/t/test-full.proto $SRC/protobuf-c-fuzzers/
 export PATH=$PATH:$SRC/protobuf-c/protoc-c
 $PROTOC --c_out=. -I. -I/usr/local/include test-full.proto
-$CC $CFLAGS test-full.pb-c.c -I $SRC/protobuf-install -I $SRC/protobuf-c -c -o test-full.pb-c.o
-$CXX $CXXFLAGS fuzzer.cpp -I $SRC/protobuf-install -I $SRC/protobuf-c test-full.pb-c.o $SRC/protobuf-c/protobuf-c/.libs/libprotobuf-c.a $LIB_FUZZING_ENGINE -o $OUT/fuzzer
+$CC $CFLAGS test-full.pb-c.c -I $SRC/protobuf-install/include -I $SRC/protobuf-c -c -o test-full.pb-c.o
+$CXX $CXXFLAGS fuzzer.cpp -I $SRC/protobuf-install/include -I $SRC/protobuf-c test-full.pb-c.o $SRC/protobuf-c/protobuf-c/.libs/libprotobuf-c.a $LIB_FUZZING_ENGINE -o $OUT/fuzzer

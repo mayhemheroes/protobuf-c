@@ -17,7 +17,7 @@
 FROM gcr.io/oss-fuzz-base/base-builder
 ENV GIT_TERMINAL_PROMPT=0
 MAINTAINER guidovranken@gmail.com
-RUN apt-get -o Acquire::Retries=5 update && apt-get -o Acquire::Retries=5 install -y make autoconf automake libtool pkg-config
+RUN apt-get -o Acquire::Retries=5 update && apt-get -o Acquire::Retries=5 install -y make cmake autoconf automake libtool pkg-config
 RUN for i in 1 2 3; do git clone --depth 1 --recursive https://github.com/protocolbuffers/protobuf.git && break || sleep 5; done
 COPY . next
 RUN rm -rf next/mayhem
