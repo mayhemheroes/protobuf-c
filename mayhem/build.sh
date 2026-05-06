@@ -54,8 +54,7 @@ export PROTOC="$SRC/protobuf-install/bin/protoc"
 # Point it to the protobuf cmake install using explicit flags
 cd $SRC/protobuf-c/
 ./autogen.sh
-PROTOBUF_CFLAGS="-I$SRC/protobuf-install/include" \
-PROTOBUF_LIBS="-L$SRC/protobuf-install/lib -lprotobuf" \
+PKG_CONFIG_PATH="$SRC/protobuf-install/lib/pkgconfig" PROTOBUF_CFLAGS="-I$SRC/protobuf-install/include" PROTOBUF_LIBS="-L$SRC/protobuf-install/lib -lprotobuf" \
 ./configure --enable-static=yes --enable-shared=false
 
 make -j$(nproc)
