@@ -11,19 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-################################################################################
 
 FROM gcr.io/oss-fuzz-base/base-builder
-ENV GIT_TERMINAL_PROMPT=0
+RUN sed -i s|snapshot.ubuntu.com|archive.ubuntu.com|g /etc/apt/sources.list /etc/apt/sources.list.d/*.list 2>/dev/null || true
 MAINTAINER guidovranken@gmail.com
-RUN apt-get -o Acquire::Retries=5 update && apt-get -o Acquire::Retries=5 install -y make cmake autoconf automake libtool pkg-config
-RUN for i in 1 2 3; do git clone --depth 1 --recursive https://github.com/protocolbuffers/protobuf.git && break || sleep 5; done
+RUN apt-get -o Acquire::Retries=5 update && apt-get -o Acquire::Retries=5 install -y \
+  make autoconf automake libtool pkg-config \
+  protobuf-compiler libprotobuf-dev libprotoc-dev
 COPY . protobuf-c
 RUN rm -rf protobuf-c/mayhem
-RUN for i in 1 2 3; do git clone --depth 1 https://github.com/guidovranken/fuzzing-headers.git && break || sleep 5; done
-RUN for i in 1 2 3; do git clone --depth 1 https://github.com/guidovranken/protobuf-c-fuzzers.git && break || sleep 5; done
-COPY mayhem/build.sh $SRC/
-
+COPY mayhem/build.sh mayhem/unpack_fuzzer.c $SRC/
 ENV FUZZING_LANGUAGE=c SANITIZER=address
 RUN compile

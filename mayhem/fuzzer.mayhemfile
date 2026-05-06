@@ -1,4 +1,4 @@
-project: PROJECT
+project: protobuf-c
 target: fuzzer
 cmds:
 - cmd: /out/fuzzer
