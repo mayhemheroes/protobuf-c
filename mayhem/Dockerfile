@@ -17,7 +17,7 @@ RUN sed -i s|snapshot.ubuntu.com|archive.ubuntu.com|g /etc/apt/sources.list /etc
 MAINTAINER guidovranken@gmail.com
 RUN apt-get -o Acquire::Retries=5 update && apt-get -o Acquire::Retries=5 install -y \
   make autoconf automake libtool pkg-config \
-  protobuf-compiler libprotobuf-dev libprotoc-dev
+  protobuf-compiler protobuf-c-compiler libprotobuf-dev libprotoc-dev
 COPY . protobuf-c
 RUN rm -rf protobuf-c/mayhem
 COPY mayhem/build.sh mayhem/unpack_fuzzer.c $SRC/

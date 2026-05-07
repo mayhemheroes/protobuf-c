@@ -24,7 +24,7 @@ fi
 
 cd $SRC/protobuf-c/
 ./autogen.sh
-./configure --enable-static=yes --enable-shared=false
+./configure --enable-static=yes --enable-shared=false --disable-protoc
 
 make -j$(nproc)
 make install
